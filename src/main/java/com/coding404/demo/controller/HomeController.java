@@ -20,12 +20,12 @@ import com.coding404.demo.user.UserMapper;
 public class HomeController {
 	
 	@Autowired
-	BCryptPasswordEncoder bCryptPasswordEncoder;
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Autowired
 	private UserMapper userMapper;
 	
-
+	
 	//홈
 	@GetMapping("/hello")
 	public String hello(Authentication auth) {
@@ -34,23 +34,24 @@ public class HomeController {
 //		if(auth != null) {
 //			//System.out.println(auth);
 //			MyUserDetails details = (MyUserDetails)auth.getPrincipal();
-//			System.out.println(details.getUsername());
-//			System.out.println(details.getPassword());
-//			System.out.println(details.getRole());
+//			System.out.println(details.getUsername() );
+//			System.out.println(details.getPassword() );
+//			System.out.println(details.getRole() );
 //		}
 		
 		//2nd - 시큐리티세션을 직접사용
-		//MyUserDetails details = (MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		//System.out.println(details);
-		Authentication authentication = SecurityContextHolder
+		Authentication authehntication = SecurityContextHolder
 										.getContext()
 										.getAuthentication();
-		//System.out.println(authentication);
-		//System.out.println((MyUserDetails)authentication); //에러
-		if(authentication.getPrincipal() instanceof MyUserDetails) {
-		   MyUserDetails details = (MyUserDetails)authentication.getPrincipal();
-	       System.out.println(details);
+		
+		if( authehntication.getPrincipal() instanceof MyUserDetails ) {
+			MyUserDetails details = (MyUserDetails)authehntication.getPrincipal();
+			System.out.println(details);
 		}
+		
+		
+		
+		
 		
 		return "hello";
 	}
@@ -60,10 +61,11 @@ public class HomeController {
 	public String join() {
 		return "join";
 	}
-	
+
 	//회원가입 요청
 	@PostMapping("/joinForm")
 	public String joinForm(UserVO vo) {
+		
 		
 		//비밀번호 암호화
 		String pw = bCryptPasswordEncoder.encode(vo.getPassword());
@@ -73,20 +75,24 @@ public class HomeController {
 		//회원가입작업
 		userMapper.join(vo);
 		
-		return "redirect:/login"; //로그인 페이지로
+		return "redirect:/login"; //로그인 페이지로 
 	}
+	
+	
 	
 	//커스터마이징 로그인페이지
 	@GetMapping("/login")
-	public String login(@RequestParam(value = "err", required = false) String err,
+	public String login(@RequestParam( value = "err", required = false) String err,
 						Model model) {
 		
 		if(err != null) {
-			model.addAttribute("msg","아이디 비밀번호를 확인하세요");
+			model.addAttribute("msg", "아이디 비밀번호를 확인하세요");
 		}
+		
 		
 		return "login";
 	}
+	
 	
 	
 	
@@ -94,8 +100,7 @@ public class HomeController {
 	public String all() {
 		return "all";
 	}
-	
-	
+
 	@GetMapping("/admin/mypage")
 	public @ResponseBody String mypage() {
 		return "REST API admin 마이페이지";
@@ -106,17 +111,22 @@ public class HomeController {
 		return "REST API user 마이페이지";
 	}
 	
+	
 	@GetMapping("/deny")
 	public @ResponseBody String deny() {
-		return "페이지에 접근할 권한이 없습니다.";
+		return "페이지에 접근할 권한이 없습니다";
 	}
 	
-	//어드민 권한이 있어야 접근이 가능
+ 	//어드민 권한이 있어야 접근이 가능
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping("/test")
 	public @ResponseBody String test() {
 		return "여기는 preAuthorize로 처리";
 	}
+	
+	
+	
+	
+	
+	
 }
-
-
